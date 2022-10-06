@@ -1,0 +1,11 @@
+{
+  "name": "01-env-variables",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/examples/01-env-variables/src/example.js",
+  "scripts": {
+    "start:dev": "tsc-watch --onSuccess \"node .\""
+  },
+  "author": "Matii96",
+  "license": "MIT"
+}
