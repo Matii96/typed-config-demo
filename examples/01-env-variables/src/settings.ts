@@ -1,31 +1,30 @@
-import { IsDefined, IsInt, IsString, ValidateNested } from "class-validator";
-import { Expose, Type } from "class-transformer";
+import { IsDefined, IsInt, IsString } from 'class-validator';
+import { Nested } from '../../../src/properties-mapping/decorators/nested.decorator';
+import { From } from '../../../src/properties-mapping/decorators/from.decorator';
 
 export class DbSettings {
-  @Expose({ name: "db_host" })
+  @From('DB_HOST')
   @IsString()
   host: string;
 
-  @IsString()
-  port: string;
-
-  @IsString()
-  user: string;
-
-  @IsString()
-  password: string;
+  @From('DB_PORT')
+  @IsInt()
+  port: number;
 }
 
 export class Settings {
+  /**
+   * Http port of application.
+   */
+  @From('PORT')
   @IsInt()
   port: number;
 
+  @From('HELLO_TEXT')
   @IsString()
-  @Expose({ name: "hello_text" })
   helloText: string;
 
+  @Nested(DbSettings)
   @IsDefined()
-  @ValidateNested()
-  @Type(() => DbSettings)
   db: DbSettings;
 }
