@@ -9,13 +9,11 @@ import { ConfigInstance } from './config.instance';
 export class Config {
   private static readonly _instances = new Map<Type<any>, ConfigInstance>();
 
-  static async register<TTemplate>(opts: { template: Type<TTemplate>; adapter: IConfigAdapter }) {
-    if (this._instances.has(opts.template)) {
-      return;
-    }
-    const instance = new ConfigInstance(opts.template, opts.adapter);
-    await instance.refresh();
-    this._instances.set(opts.template, instance);
+  static async register<TTemplate>(...configs: { template: Type<TTemplate>; adapter: IConfigAdapter }[]) {
+    const newConfigs = configs.filter(({ template }) => !this._instances.has(template));
+    const instances = newConfigs.map((opts) => new ConfigInstance(opts.template, opts.adapter));
+    await Promise.all(instances.map((instance) => instance.refresh()));
+    newConfigs.forEach((opts, idx) => this._instances.set(opts.template, instances[idx]));
   }
 
   static get<TTemplate>(template: Type<TTemplate>) {

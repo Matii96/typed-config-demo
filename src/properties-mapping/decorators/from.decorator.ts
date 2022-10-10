@@ -2,7 +2,7 @@ import { Expose } from 'class-transformer';
 import { mappedPropertyKey, PROPERTIES_MAPPING_METADATA } from '../constants';
 import { PropertiesMapping } from '../types';
 
-export function From(origin: string): PropertyDecorator {
+export const From = (origin: string): PropertyDecorator => {
   return (target, key: string) => {
     let mapping: PropertiesMapping = Reflect.getMetadata(PROPERTIES_MAPPING_METADATA, target.constructor);
     if (!mapping) {
@@ -14,4 +14,4 @@ export function From(origin: string): PropertyDecorator {
     // Apply custom mapping to avoid original properties overwriting.
     Expose({ name: mappedPropertyKey(key) })(target, key);
   };
-}
+};
