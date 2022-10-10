@@ -1,8 +1,12 @@
 import { plainToInstance } from 'class-transformer';
 import { Type } from '../utils/type.interface';
-import { PropertiesMapping, PropertySource } from '../properties-mapping/mapping.type';
+import { PropertiesMapping, PropertiesNesting, PropertySource } from '../properties-mapping/types';
 import { ConfigSource, ConfigSourceEntry } from '../adapters/config-adapter.interface';
-import { mappedPropertyKey, PROPERTIES_MAPPING_METADATA } from '../properties-mapping/constants';
+import {
+  mappedPropertyKey,
+  PROPERTIES_MAPPING_METADATA,
+  PROPERTIES_NESTING_METADATA,
+} from '../properties-mapping/constants';
 
 export class ConfigLoader<TTemplate> {
   private readonly _template: Type<TTemplate>;
@@ -12,16 +16,28 @@ export class ConfigLoader<TTemplate> {
   }
 
   load(source: ConfigSource) {
-    return plainToInstance(this._template, this.formatObject(this._template, source, source), {
-      enableImplicitConversion: true,
-    });
+    const plain = this.formatObject(this._template, source, source);
+    return plainToInstance(this._template, plain, { enableImplicitConversion: true });
   }
 
   private formatObject(template: Type<any>, skeleton: ConfigSource, source: ConfigSource) {
-    const mapping: PropertiesMapping = Reflect.getMetadata(PROPERTIES_MAPPING_METADATA, template);
-    for (const [targetKey, sourceKey] of mapping) {
+    const properties: PropertiesMapping = Reflect.getMetadata(PROPERTIES_MAPPING_METADATA, template);
+    if (!properties) {
+      return skeleton;
+    }
+    for (const [targetKey, sourceKey] of properties) {
       skeleton[mappedPropertyKey(targetKey)] = this.getSourceValue(source, sourceKey);
     }
+
+    const nesting: PropertiesNesting = Reflect.getMetadata(PROPERTIES_NESTING_METADATA, template);
+    if (!nesting) {
+      return skeleton;
+    }
+    for (const [targetKey, subTemplate] of nesting) {
+      skeleton[targetKey] = skeleton[targetKey] ?? {};
+      Object.assign(skeleton[targetKey], this.formatObject(subTemplate, skeleton[targetKey] as ConfigSource, source));
+    }
+
     return skeleton;
   }
 

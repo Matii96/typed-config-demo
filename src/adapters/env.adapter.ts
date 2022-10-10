@@ -11,6 +11,6 @@ export class EnvConfigAdapter implements IConfigAdapter {
   }
 
   async load() {
-    return { PORT: 5, HELLO_TEXT: 'hello', db: { host: 'host', port: 3300 } };
+    return { PORT: 5, HELLO_TEXT: 'hello', DB_HOST: 'host', DB_PORT: 3300 };
   }
 }

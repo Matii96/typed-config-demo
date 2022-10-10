@@ -1,6 +1,6 @@
 import { Expose } from 'class-transformer';
 import { mappedPropertyKey, PROPERTIES_MAPPING_METADATA } from '../constants';
-import { PropertiesMapping } from '../mapping.type';
+import { PropertiesMapping } from '../types';
 
 export function From(origin: string): PropertyDecorator {
   return (target, key: string) => {
